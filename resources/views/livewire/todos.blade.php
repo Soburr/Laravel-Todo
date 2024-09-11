@@ -1,17 +1,38 @@
 <?php
 
-use function Livewire\Volt\{state};
+use function Livewire\Volt\{state, with};
 
-state(['task'])
+state(['task']);
+
+with([
+    'todos'=>fn()=>auth()->user()->todos
+]);
+
+$add = function() {
+    auth()->user()->todos()->create([
+        'task' => $this->task
+    ]);
+    $this->task = '';
+};
+
+$delete = fn(Todo $todo) => $todo->delete();
 
 ?>
 
+
 <div>
-    <form>
-        <input type="text" wire:model='task'>
+    <form wire:submit= "add" >
+        <input style="color: black;" type="text" wire:model='task'>
+        <button type="submit">Add</buton>
     </form>
 
-    <div class="mt-2">
-       {{ $task }}
+    <div>
+        @foreach ($todos as $todo)
+           <div>
+            {{ $todo->task }}
+            <button wire:click='delete({{ $todo->id }})'>X</button>
+           </div>
+        @endforeach
     </div>
+
 </div>
